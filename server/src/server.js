@@ -28,12 +28,21 @@ if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 
-// Mount routers
+// Mount routers (supports both prefixed and non-prefixed paths for robust Vercel configurations)
 app.use('/api/auth', authRoutes);
+app.use('/auth', authRoutes);
+
 app.use('/api/categories', categoryRoutes);
+app.use('/categories', categoryRoutes);
+
 app.use('/api/quizzes', quizRoutes);
+app.use('/quizzes', quizRoutes);
+
 app.use('/api/questions', questionRoutes);
+app.use('/questions', questionRoutes);
+
 app.use('/api/attempts', attemptRoutes);
+app.use('/attempts', attemptRoutes);
 
 // Base route
 app.get('/', (req, res) => {
