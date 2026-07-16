@@ -123,11 +123,24 @@ const AdminDashboard = () => {
   const handleCatSubmit = async (e) => {
     e.preventDefault();
     try {
+      let savedCat;
       if (editingCat) {
-        await api.put(`/categories/${editingCat._id}`, catForm);
+        const res = await api.put(`/categories/${editingCat._id}`, catForm);
+        savedCat = res.data;
       } else {
-        await api.post('/categories', catForm);
+        const res = await api.post('/categories', catForm);
+        savedCat = res.data;
       }
+
+      // Update categories list immediately so it's available in the select dropdown
+      const categoriesRes = await api.get('/categories');
+      setCategories(categoriesRes.data);
+
+      // Auto-select in the quiz form if it's currently open
+      if (showQuizModal && savedCat?._id) {
+        setQuizForm(prev => ({ ...prev, category: savedCat._id }));
+      }
+
       setShowCatModal(false);
       fetchData();
     } catch (err) {
@@ -430,7 +443,17 @@ const AdminDashboard = () => {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-dark-200">Category</label>
+                  <div className="flex justify-between items-center">
+                    <label className="text-xs font-semibold text-dark-200">Category</label>
+                    <button
+                      type="button"
+                      onClick={() => handleOpenCatModal()}
+                      className="text-[10px] font-bold text-primary-400 hover:text-primary-300 flex items-center space-x-1 cursor-pointer transition-colors"
+                    >
+                      <Plus className="h-3.5 w-3.5" />
+                      <span>+ Add Category</span>
+                    </button>
+                  </div>
                   <select
                     required
                     value={quizForm.category}
